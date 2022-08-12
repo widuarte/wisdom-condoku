@@ -1,7 +1,11 @@
 package main
 
-import "fmt"
+import (
+	"wisdom_condoku/fronend"
+	"wisdom_condoku/model"
+)
 
 func main() {
-	fmt.Println("Hola mundo")
+	matrix := model.NewMatrix()
+	fronend.PrintBoard(matrix)
 }

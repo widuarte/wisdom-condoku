@@ -1,0 +1,1052 @@
+{
+	"info": {
+		"_postman_id": "90a34408-9432-4e7b-8040-b44a54f00072",
+		"name": "oidc-provider",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_uid": "24073558-90a34408-9432-4e7b-8040-b44a54f00072"
+	},
+	"item": [
+		{
+			"name": "1 - Well Known",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "2e120d1e-539b-41d3-a4f8-86c5df022f4e",
+						"exec": [
+							"if (pm.response.to.have.status(200)) {",
+							"    var data = pm.response.json();",
+							"    pm.environment.set(\"registration_endpoint\", data[\"registration_endpoint\"]);",
+							"    pm.environment.set(\"token_endpoint\", data[\"token_endpoint\"]);",
+							"    pm.environment.set(\"authorization_endpoint\", data[\"authorization_endpoint\"]);",
+							"    pm.environment.set(\"introspection_endpoint\", data[\"mtls_endpoint_aliases\"][\"introspection_endpoint\"]);",
+							"    pm.environment.set(\"revocation_endpoint\", data[\"mtls_endpoint_aliases\"][\"revocation_endpoint\"]);",
+							"    pm.environment.set(\"pushed_authorization_request_endpoint\", data.pushed_authorization_request_endpoint);",
+							"    ",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "4e8756aa-d434-4014-95c9-f6a94d784b5a",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{wellknown_url}}",
+					"host": [
+						"{{wellknown_url}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2 - DCR",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6c2ab358-dd8f-47d1-8860-173536567011",
+						"exec": [
+							"if (pm.response.to.have.status(201)) {",
+							"    var data = pm.response.json();",
+							"    pm.environment.set(\"registration_client_uri\", data[\"registration_client_uri\"]);",
+							"    pm.environment.set(\"client_id\", data[\"client_id\"]);",
+							"    pm.environment.set(\"registration_access_token\", data[\"registration_access_token\"]);",
+							"    pm.environment.set(\"redirect_uri\", data[\"redirect_uris\"][0]);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "6cc432ee-0a5a-4ea1-8862-77731f1ec1f5",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-certificate-subj",
+						"value": "{{certificate_subj}}",
+						"type": "text"
+					},
+					{
+						"key": "x-certificate",
+						"value": "{{certificate}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"redirect_uris\": [\n        \"https://jwt.io\",\n        \"https://www.certification.openid.net/test/a/meli-h-obbfapiplainprofile-dcr/callback\",\n        \"https://www.certification.openid.net/test/a/meli-h-obbfapiplainprofile-dcr/callback?dummy1=lorem&dummy2=ipsum\"\n    ],\n    \"client_name\": \"Open Banking Brasil\",\n    \"token_endpoint_auth_method\": \"private_key_jwt\",\n    \"introspection_endpoint_auth_method\": \"private_key_jwt\",\n    \"revocation_endpoint_auth_method\": \"private_key_jwt\",\n    \"request_uris\": [\n        \"https://www.certification.openid.net/test/a/meli-h-obbfapiplainprofile-dcr/callback\"\n    ],\n    \"request_object_signing_alg\": \"PS256\",\n    \"software_statement\": \"{{software_statement}}\",\n    \"tls_client_auth_subject_dn\": \"{{certificate_subj}}\",\n    \"x-envoy-external-address\": \"201.63.25.34\",\n    \"jwks_uri\": \"https://keystore.sandbox.directory.openbankingbrasil.org.br/e5a1c7ad-11d4-560d-914c-611003a39219/c8efaa99-a153-411c-98a7-a0b4f469fb2c/application.jwks\",\n    \"grant_types\": [\n        \"authorization_code\",\n        \"implicit\",\n        \"refresh_token\",\n        \"client_credentials\"\n    ],\n    \"webhook_uris\": [\n        \"https://jwt.io\"\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{registration_endpoint}}",
+					"host": [
+						"{{registration_endpoint}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2.1 - DCM",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6c2ab358-dd8f-47d1-8860-173536567011",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "817c9893-9f68-43de-8f02-65ad48885bc3",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{registration_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-certificate-subj",
+						"value": "{{certificate_subj}}",
+						"type": "text"
+					},
+					{
+						"key": "x-certificate",
+						"value": "{{certificate}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{registration_client_uri}}",
+					"host": [
+						"{{registration_client_uri}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2.2 - DCM",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6c2ab358-dd8f-47d1-8860-173536567011",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "af380f71-3fca-453d-9016-015eca565f60",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{registration_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "x-certificate-subj",
+						"value": "{{certificate_subj}}",
+						"type": "text"
+					},
+					{
+						"key": "x-certificate",
+						"value": "{{certificate}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"application_type\": \"web\",\n\t\"grant_types\": [\n\t\t\"authorization_code\",\n\t\t\"implicit\",\n\t\t\"refresh_token\",\n\t\t\"client_credentials\"\n\t],\n\t\"id_token_signed_response_alg\": \"PS256\",\n\t\"post_logout_redirect_uris\": [],\n\t\"require_auth_time\": false,\n\t\"response_types\": [\n\t\t\"code id_token\"\n\t],\n\t\"subject_type\": \"public\",\n\t\"token_endpoint_auth_method\": \"tls_client_auth\",\n\t\"introspection_endpoint_auth_method\": \"tls_client_auth\",\n\t\"revocation_endpoint_auth_method\": \"tls_client_auth\",\n\t\"require_signed_request_object\": true,\n\t\"authorization_signed_response_alg\": \"PS256\",\n\t\"tls_client_certificate_bound_access_tokens\": true,\n\t\"client_id\": \"{{client_id}}\",\n\t\"client_name\": \"Open Banking Brasil\",\n\t\"jwks_uri\": \"https://keystore.sandbox.directory.openbankingbrasil.org.br/e5a1c7ad-11d4-560d-914c-611003a39219/c8efaa99-a153-411c-98a7-a0b4f469fb2c/application.jwks\",\n\t\"redirect_uris\": [\n\t\t\"https://jwt.io\",\n\t\t\"https://www.certification.openid.net/test/a/meli-h-obbfapiplainprofile-dcr/callback\",\n\t\t\"https://www.certification.openid.net/test/a/meli-h-obbfapiplainprofile-dcr/callback?dummy1=lorem&dummy2=ipsum\"\n\t],\n\t\"scope\": \"openid offline_access accounts credit-cards-accounts consents customers invoice-financings financings loans unarranged-accounts-overdraft resources payments\",\n\t\"tls_client_auth_subject_dn\": \"{{certificate_subj}}\",\n\t\"request_object_signing_alg\": \"PS256\",\n\t\"software_statement\": \"{{software_statement}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{registration_client_uri}}",
+					"host": [
+						"{{registration_client_uri}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2.3 - DCM",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6c2ab358-dd8f-47d1-8860-173536567011",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "e22cd98a-558c-4a19-8d72-f3b1ee8a0aac",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{registration_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "x-certificate-subj",
+						"value": "{{certificate_subj}}",
+						"type": "text"
+					},
+					{
+						"key": "x-certificate",
+						"value": "{{certificate}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{registration_client_uri}}",
+					"host": [
+						"{{registration_client_uri}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3. Token Client Credentials",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6c2ab358-dd8f-47d1-8860-173536567011",
+						"exec": [
+							"if (pm.response.to.have.status(200)) {",
+							"    var data = pm.response.json();",
+							"    pm.environment.set(\"access_token\", data[\"access_token\"]);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "81c39fef-1b6e-4229-b710-c38defbf0e13",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-certificate-subj",
+						"value": "{{certificate_subj}}",
+						"type": "text"
+					},
+					{
+						"key": "x-certificate",
+						"value": "{{certificate}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{client_id}}",
+							"type": "text"
+						},
+						{
+							"key": "scope",
+							"value": "consents",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{token_endpoint}}",
+					"host": [
+						"{{token_endpoint}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "4 - Create Consent Phase 2",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "bb662716-665d-472a-962d-535a17e09d00",
+						"exec": [
+							"const moment = require('moment');",
+							"const today = `${moment().add(2, 'days').format(\"YYYY-MM-DDThh:mm:ss\")}Z`",
+							"pm.collectionVariables.set(\"today\", today);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "c7821d3f-86b7-4f5f-8eb9-28a3296f4b0a",
+						"exec": [
+							"if (pm.response.to.have.status(201)) {",
+							"    var data = pm.response.json();",
+							"    pm.environment.set(\"consent_id\", data.data.consentId);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "8659d088-0e58-4965-a26f-bcf2d9aad4c9",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{registration_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-api-test",
+						"value": "true"
+					},
+					{
+						"key": "x-caller-id",
+						"value": "1342714747"
+					},
+					{
+						"key": "x-device-id",
+						"value": "1",
+						"disabled": true
+					},
+					{
+						"key": "x-obb-custom-data",
+						"value": "eyJvcmdfaWQiOiJlNWExYzdhZC0xMWQ0LTU2MGQtOTE0Yy02MTEwMDNhMzkyMTkiLCJzb2Z0d2FyZV9jbGllbnRfbmFtZSI6Ik1lcmNhZG8gUGFnbyBUZXN0IENsaWVudCIsInNvZnR3YXJlX2xvZ29fdXJpIjoiaHR0cHM6Ly90ZXN0Y2xpZW50Lm1lcmNhZG9wYWdvLmNvbS9sb2dvLnRtcCIsImNhbGxlcl91c2VyX2lkIjoidXJuOnVzZXJzOjkzNDI5MjA1IiwiY2FsbGVyX2NsaWVudF9pZCI6InVybjphcHBsaWNhdGlvbnM6NjkzODc5MzYwMTEzOTU4NyIsImNsaWVudF9pZF9mYXBpIjoiNWcwNHBOZzR2UmcyR0JtRmJoellMIn0",
+						"disabled": true
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"data\": {\n        \"loggedUser\": {\n            \"document\": {\n                \"identification\": \"15635614680\",\n                \"rel\": \"CPF\"\n            }\n        },\n        \"bank\": {\n            \"id\": \"dcb416c8-29ce-42cb-9c21-33f910894e85\",\n            \"code\": \"370\",\n            \"title\": \"Mercado Pago\",\n            \"organisationId\": \"e5a1c7ad-11d4-560d-914c-611003a39219\",\n            \"authorisationServerId\": \"e967d551-6fc8-4830-84a1-e9c880a54433\",\n            \"description\": \"Mercado Pago\",\n            \"logo\": {\n                \"50x50\": \"https://http2.mlstatic.com/open-banking/assets/dcb416c8-29ce-42cb-9c21-33f910894e85.svg\",\n                \"40x40\": \"https://http2.mlstatic.com/open-banking/assets/dcb416c8-29ce-42cb-9c21-33f910894e85.svg\"\n            },\n            \"parentId\": \"dcb416c8-29ce-42cb-9c21-33f910894e85\",\n            \"clientId\": \"3d_p_vu_cb8PARLUiualf\",\n            \"status\": \"ACTIVE\",\n            \"ispb\": \"99999008\",\n            \"roles\": [\n                \"DATA\"\n            ],\n            \"isFrequentlyUsed\": false\n        },\n        \"permissions\": [\n            \"LOANS_SCHEDULED_INSTALMENTS_READ\",\n\t\t\t\"CREDIT_CARDS_ACCOUNTS_LIMITS_READ\",\n\t\t\t\"CUSTOMERS_PERSONAL_ADITTIONALINFO_READ\",\n\t\t\t\"FINANCINGS_PAYMENTS_READ\",\n\t\t\t\"ACCOUNTS_OVERDRAFT_LIMITS_READ\",\n\t\t\t\"UNARRANGED_ACCOUNTS_OVERDRAFT_SCHEDULED_INSTALMENTS_READ\",\n\t\t\t\"ACCOUNTS_READ\",\n\t\t\t\"CREDIT_CARDS_ACCOUNTS_READ\",\n\t\t\t\"UNARRANGED_ACCOUNTS_OVERDRAFT_READ\",\n\t\t\t\"UNARRANGED_ACCOUNTS_OVERDRAFT_WARRANTIES_READ\",\n\t\t\t\"CREDIT_CARDS_ACCOUNTS_BILLS_TRANSACTIONS_READ\",\n\t\t\t\"CREDIT_CARDS_ACCOUNTS_TRANSACTIONS_READ\",\n\t\t\t\"FINANCINGS_WARRANTIES_READ\",\n\t\t\t\"ACCOUNTS_TRANSACTIONS_READ\",\n\t\t\t\"ACCOUNTS_BALANCES_READ\",\n\t\t\t\"RESOURCES_READ\",\n\t\t\t\"LOANS_WARRANTIES_READ\",\n\t\t\t\"LOANS_PAYMENTS_READ\",\n\t\t\t\"INVOICE_FINANCINGS_READ\",\n\t\t\t\"FINANCINGS_SCHEDULED_INSTALMENTS_READ\",\n\t\t\t\"CUSTOMERS_PERSONAL_IDENTIFICATIONS_READ\",\n\t\t\t\"INVOICE_FINANCINGS_WARRANTIES_READ\",\n\t\t\t\"CREDIT_CARDS_ACCOUNTS_BILLS_READ\",\n\t\t\t\"INVOICE_FINANCINGS_PAYMENTS_READ\",\n\t\t\t\"LOANS_READ\",\n\t\t\t\"FINANCINGS_READ\",\n\t\t\t\"UNARRANGED_ACCOUNTS_OVERDRAFT_PAYMENTS_READ\",\n\t\t\t\"INVOICE_FINANCINGS_SCHEDULED_INSTALMENTS_READ\"\n        ],\n        \"reason\": {\n            \"id\": \"1\",\n            \"description\": \"Quero organizar minhas finanças\"\n        },\n        \"expirationDateTime\": \"{{today}}\",\n        \"redirectUri\": \"{{redirect_uri}}\",\n        \"state\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VDYXNlSWQiOiIiLCJpZEZyb250IjoiYzViZmY3MzgtNzZjNC00MGI1LWJhNTUtMDQ4ZTEwM2QyOTk3IiwiaWF0IjoxNjI3NjY5MDExfQ.uHdNx2dQN5YAa2YrhgHlLkb36tX4QK97x1AaPh2sxeI\"\n\t}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://internal-api.mercadopago.com/open-banking/consents/v1/internal/consents",
+					"protocol": "https",
+					"host": [
+						"internal-api",
+						"mercadopago",
+						"com"
+					],
+					"path": [
+						"open-banking",
+						"consents",
+						"v1",
+						"internal",
+						"consents"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "5 - PAR",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "4626130b-d060-4c51-9218-bb754282be7c",
+						"exec": [
+							"eval(pm.globals.get('pmlib_code'))",
+							"",
+							"const privateKey = pm.environment.get(\"brseal.key\");",
+							"const pkcs8Key = pmlib.rs.KEYUTIL.getKey(privateKey);",
+							"",
+							"const header = {",
+							"    alg: 'PS256',",
+							"    \"typ\": \"JWT\"",
+							"};",
+							"",
+							"const payload = {",
+							"  \"response_type\": \"code id_token\",",
+							"  \"client_id\": pm.environment.get(\"client_id\"),",
+							"  \"scope\": `accounts openid consent:${pm.environment.get(\"consent_id\")}}`,",
+							"  \"redirect_uri\": pm.environment.get(\"redirect_uri\"),",
+							"  \"state\": pm.variables.replaceIn('{{$randomUUID}}'),",
+							"  \"nonce\": pm.variables.replaceIn('{{$randomUUID}}'),",
+							"  \"code_challenge\": \"JKk8WHK1iT88QAjcFb0JsfKVChdhrmegD0NYgCmRPvY\",",
+							"  \"code_challenge_method\": \"S256\",",
+							"  \"code_verifier\": \"h4uwnlaTkmQmy5vKWSyGE0lnQ5YY-Sz35W9nPRBEgvs\",",
+							"  \"iss\": pm.environment.get(\"client_id\"),",
+							"  \"sub\": pm.environment.get(\"client_id\"),",
+							"  \"aud\": pm.environment.get(\"jwt_aud\"),",
+							"  \"nbf\": Math.floor(Date.now() / 1000)+4,",
+							"  \"exp\": Math.floor(Date.now() / 1000)+101,",
+							"  \"jti\": pm.variables.replaceIn('{{$randomUUID}}'),",
+							"  \"iat\": Math.floor(Date.now() / 1000),",
+							"};",
+							"",
+							"",
+							"const jwtToken = pmlib.rs.KJUR.jws.JWS.sign('PS256', JSON.stringify(header), JSON.stringify(payload), pkcs8Key);",
+							"",
+							"pm.collectionVariables.set(\"request\", jwtToken);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "bf9192b5-ad75-4f49-8b12-52ae2d49506e",
+						"exec": [
+							"if (pm.response.to.have.status(201)) {",
+							"    var data = pm.response.json();",
+							"    pm.environment.set(\"request_uri\", data.request_uri);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "b791139d-bd4c-4002-a96d-9056a71945fe",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-certificate-subj",
+						"value": "{{certificate_subj}}",
+						"type": "text"
+					},
+					{
+						"key": "x-certificate",
+						"value": "{{certificate}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "state",
+							"value": "af0ifjsldkj",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{client_id}}",
+							"type": "text"
+						},
+						{
+							"key": "redirect_uri",
+							"value": "{{redirect_uri}}",
+							"type": "text"
+						},
+						{
+							"key": "scope",
+							"value": "openid",
+							"type": "text"
+						},
+						{
+							"key": "request",
+							"value": "{{request}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{pushed_authorization_request_endpoint}}",
+					"host": [
+						"{{pushed_authorization_request_endpoint}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "6 - Authorization GET InteractionID",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "4626130b-d060-4c51-9218-bb754282be7c",
+						"exec": [
+							"eval(pm.globals.get('pmlib_code'))",
+							"",
+							"const privateKey = pm.environment.get(\"brseal.key\");",
+							"const pkcs8Key = pmlib.rs.KEYUTIL.getKey(privateKey);",
+							"",
+							"const header = {",
+							"    alg: 'PS256',",
+							"    \"typ\": \"JWT\"",
+							"};",
+							"",
+							"const payload = {",
+							"  \"response_type\": \"code id_token\",",
+							"  \"client_id\": pm.environment.get(\"client_id\"),",
+							"  \"scope\": `accounts openid consent:${pm.environment.get(\"consent_id\")}}`,",
+							"  \"redirect_uri\": pm.environment.get(\"redirect_uri\"),",
+							"  \"state\": pm.variables.replaceIn('{{$randomUUID}}'),",
+							"  \"nonce\": pm.variables.replaceIn('{{$randomUUID}}'),",
+							"  \"code_challenge\": \"JKk8WHK1iT88QAjcFb0JsfKVChdhrmegD0NYgCmRPvY\",",
+							"  \"code_challenge_method\": \"S256\",",
+							"  \"code_verifier\": \"h4uwnlaTkmQmy5vKWSyGE0lnQ5YY-Sz35W9nPRBEgvs\",",
+							"  \"iss\": pm.environment.get(\"client_id\"),",
+							"  \"sub\": pm.environment.get(\"client_id\"),",
+							"  \"aud\": pm.environment.get(\"jwt_aud\"),",
+							"  \"nbf\": Math.floor(Date.now() / 1000)+4,",
+							"  \"exp\": Math.floor(Date.now() / 1000)+101,",
+							"  \"jti\": pm.variables.replaceIn('{{$randomUUID}}'),",
+							"  \"iat\": Math.floor(Date.now() / 1000)",
+							"};",
+							"",
+							"",
+							"const jwtToken = pmlib.rs.KJUR.jws.JWS.sign('PS256', JSON.stringify(header), JSON.stringify(payload), pkcs8Key);",
+							"",
+							"pm.collectionVariables.set(\"request\", jwtToken);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "bf9192b5-ad75-4f49-8b12-52ae2d49506e",
+						"exec": [
+							"if (pm.response.to.have.status(200)) {",
+							"    var data = pm.response.json();",
+							"    pm.environment.set(\"interaction_id\", data[\"interaction_id\"]);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "5ada1227-785d-4db2-a6bb-5590941fb692",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-certificate-subj",
+						"value": "{{certificate_subj}}",
+						"type": "text"
+					},
+					{
+						"key": "x-certificate",
+						"value": "{{certificate}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{authorization_endpoint}}?response_type=code+id_token&client_id={{client_id}}&scope=accounts+openid+consent:{{consent_id}}&request={{request}}",
+					"host": [
+						"{{authorization_endpoint}}"
+					],
+					"query": [
+						{
+							"key": "response_type",
+							"value": "code+id_token"
+						},
+						{
+							"key": "client_id",
+							"value": "{{client_id}}"
+						},
+						{
+							"key": "scope",
+							"value": "accounts+openid+consent:{{consent_id}}",
+							"description": "accounts+openid+consent:{{consent_id}}"
+						},
+						{
+							"key": "request_uri",
+							"value": "{{request_uri}}",
+							"disabled": true
+						},
+						{
+							"key": "request",
+							"value": "{{request}}"
+						},
+						{
+							"key": "response_mode",
+							"value": "fragment",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "6.1 - Change interactionID to authorization_code",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "4626130b-d060-4c51-9218-bb754282be7c",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "bf9192b5-ad75-4f49-8b12-52ae2d49506e",
+						"exec": [
+							"if (pm.response.to.have.status(200)) {",
+							"    var data = pm.response.json();",
+							"    pm.environment.set(\"auth_code\", data.auth_code);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "d6afc72f-e3b9-4c4e-80b2-013cabf4c77e",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "_interaction={{interaction_id}};_interaction_resume={{interaction_id}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{authorization_endpoint}}/{{interaction_id}}",
+					"host": [
+						"{{authorization_endpoint}}"
+					],
+					"path": [
+						"{{interaction_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "7 - Exchange Auth_code for Refresh Token",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "4626130b-d060-4c51-9218-bb754282be7c",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "bf9192b5-ad75-4f49-8b12-52ae2d49506e",
+						"exec": [
+							"if (pm.response.to.have.status(200)) {",
+							"    var data = pm.response.json();",
+							"    pm.environment.set(\"refresh_token\", data.refresh_token);",
+							"    pm.environment.set(\"access_token\", data.access_token);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "5fc01063-ac25-4032-9eb6-b4be0b438393",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-certificate-subj",
+						"value": "{{certificate_subj}}",
+						"type": "text"
+					},
+					{
+						"key": "x-certificate",
+						"value": "{{certificate}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "authorization_code",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{client_id}}",
+							"type": "text"
+						},
+						{
+							"key": "code",
+							"value": "{{auth_code}}",
+							"type": "text"
+						},
+						{
+							"key": "redirect_uri",
+							"value": "{{redirect_uri}}",
+							"type": "text"
+						},
+						{
+							"key": "code_verifier",
+							"value": "h4uwnlaTkmQmy5vKWSyGE0lnQ5YY-Sz35W9nPRBEgvs",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{token_endpoint}}",
+					"host": [
+						"{{token_endpoint}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "8 - Refresh Token",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "4626130b-d060-4c51-9218-bb754282be7c",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "bf9192b5-ad75-4f49-8b12-52ae2d49506e",
+						"exec": [
+							"if (pm.response.to.have.status(200)) {",
+							"    var data = pm.response.json();",
+							"    pm.environment.set(\"refresh_token\", data.refresh_token);",
+							"    pm.environment.set(\"access_token\", data.access_token);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "f5ae179c-edce-4397-96ec-36ce23dd5455",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-certificate-subj",
+						"value": "{{certificate_subj}}",
+						"type": "text"
+					},
+					{
+						"key": "x-certificate",
+						"value": "{{certificate}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "refresh_token",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{client_id}}",
+							"type": "text"
+						},
+						{
+							"key": "refresh_token",
+							"value": "{{refresh_token}}",
+							"type": "text"
+						},
+						{
+							"key": "code_verifier",
+							"value": "h4uwnlaTkmQmy5vKWSyGE0lnQ5YY-Sz35W9nPRBEgvs",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "{{token_endpoint}}",
+					"host": [
+						"{{token_endpoint}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "9 - Introspection Token",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "4626130b-d060-4c51-9218-bb754282be7c",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "bf9192b5-ad75-4f49-8b12-52ae2d49506e",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "fda41483-31c6-4675-b0fc-1cf9825b08a0",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-certificate-subj",
+						"value": "{{certificate_subj}}",
+						"type": "text"
+					},
+					{
+						"key": "x-certificate",
+						"value": "{{certificate}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_id",
+							"value": "{{client_id}}",
+							"type": "text"
+						},
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{introspection_endpoint}}",
+					"host": [
+						"{{introspection_endpoint}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "10 - Revocation Token",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "4626130b-d060-4c51-9218-bb754282be7c",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "bf9192b5-ad75-4f49-8b12-52ae2d49506e",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "dcd40747-3c2d-494c-805c-42be96850697",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-certificate-subj",
+						"value": "{{certificate_subj}}",
+						"type": "text"
+					},
+					{
+						"key": "x-certificate",
+						"value": "{{certificate}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_id",
+							"value": "{{client_id}}",
+							"type": "text"
+						},
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{revocation_endpoint}}",
+					"host": [
+						"{{revocation_endpoint}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"id": "cc19d090-f55c-4e74-b1ca-98ff81156321",
+			"key": "today",
+			"value": ""
+		},
+		{
+			"id": "734d7ce5-f00b-4815-a88e-813d9b839f3e",
+			"key": "request",
+			"value": ""
+		}
+	]
+}
